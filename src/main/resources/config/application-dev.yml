@@ -48,9 +48,9 @@ spring:
       # it can be set to any label, branch or commit of the configuration source Git repository
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/PayGov
-    username: PayGov
-    password:
+    url: jdbc:postgresql://localhost:5432/paygov
+    username: postgres
+    password: root
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -58,7 +58,8 @@ spring:
     database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
-    contexts: dev, faker
+    contexts: dev
+    drop-first: true
   mail:
     host: localhost
     port: 25

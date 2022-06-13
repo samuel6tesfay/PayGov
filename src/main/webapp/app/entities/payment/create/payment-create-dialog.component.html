@@ -1,0 +1,26 @@
+<form *ngIf="payment" name="deleteForm" (ngSubmit)="confirmCreate()">
+  <div class="modal-header">
+    <h4 class="modal-title" data-cy="paymentCreateDialogHeading">Confirm create operation</h4>
+
+    <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <jhi-alert-error></jhi-alert-error>
+
+    <p id="jhi-delete-payment-heading">You are being redirected in {{time}} Sec to https://Pay.Gov to 
+      provide your payment etails and submit your payment you will be returned to EDGAR once you
+       have submitted your payment on Pay.gov.</p>
+    
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+    </button>
+
+    <button id="jhi-confirm-create-payment" data-cy="entityConfirmDeleteButton" type="submit" class="btn btn-primary"  [routerLink]="['/payment']">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span>create</span>
+    </button>
+  </div>
+</form>

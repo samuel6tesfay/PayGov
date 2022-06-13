@@ -1,6 +1,8 @@
 <nav data-cy="navbar" class="navbar navbar-dark navbar-expand-md bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand logo" routerLink="/" (click)="collapseNavbar()">
+    <a class="navbar-brand logo"    
+       routerLink="payment/new"
+       (click)="collapseNavbar()">
       <span class="logo-img"></span>
       <span class="navbar-title">PayGov</span>
       <span class="navbar-version">{{ version }}</span>
@@ -19,16 +21,29 @@
     </a>
     <div class="navbar-collapse collapse" id="navbarResponsive" [ngbCollapse]="isNavbarCollapsed" [ngSwitch]="account !== null">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <!-- <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           <a class="nav-link" routerLink="/" (click)="collapseNavbar()">
             <span>
               <fa-icon icon="home"></fa-icon>
               <span>Home</span>
             </span>
           </a>
-        </li>
+        </li> -->
+
+         <!-- <li>
+              <a
+                class="nav-link"
+                routerLink="payment/new"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="collapseNavbar()"
+              >
+                <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                <span>Payment</span>
+              </a>
+            </li> -->
         <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
-        <li
+        <!-- <li
           *ngSwitchCase="true"
           ngbDropdown
           class="nav-item dropdown pointer"
@@ -43,10 +58,21 @@
             </span>
           </a>
           <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
-            <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="payment/new"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="collapseNavbar()"
+              >
+                <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                <span>Payment</span>
+              </a>
+            </li>
           </ul>
-        </li>
-        <li
+        </li> -->
+        <!-- <li
           *jhiHasAnyAuthority="'ROLE_ADMIN'"
           ngbDropdown
           class="nav-item dropdown pointer"
@@ -97,10 +123,9 @@
                 <span>API</span>
               </a>
             </li>
-            <!-- jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here -->
           </ul>
-        </li>
-        <li
+        </li> -->
+        <!-- <li
           ngbDropdown
           class="nav-item dropdown pointer"
           display="dynamic"
@@ -166,7 +191,7 @@
               </a>
             </li>
           </ul>
-        </li>
+        </li> -->
       </ul>
     </div>
   </div>

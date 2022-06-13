@@ -1,0 +1,114 @@
+<div class="row ">
+
+    <div class="col-md-9 offset-md-2">
+        <h1 class="display-6 fw-semibold">Submit payment</h1>
+        <p class="lead fs-6">
+            <small>To submit an SEC Filing Fee payment using ACH, Credit or Debit Card. enter the below information and click NEXT.You will then verify your CIK and contact information before selecting a payment type and entering your payment information</small>
+                <br/><br/>
+            <small>Please note:ACH payments take 1-3 business days before being reflected in EDGAR.Credit and Debit Card transactions will appear in EDGAR in [TBD] hours</small>
+        </p>
+
+        <p class=" p-3 text-center bg-info lh-1 fs-4">Enter the information</p>
+    </div>
+                
+    <div class="col-md-7 p-5 offset-md-3 bg-light">
+      <!-- class="needs-validation" -->
+        <form  name="editForm" role="form" novalidate  [formGroup]="editForm">
+            <h5 id="jhi-payment-heading" data-cy="PaymentCreateUpdateHeading">Your credentials and payment amount</h5>
+            <div class="row g-3">
+                <jhi-alert-error></jhi-alert-error>
+                <div class="col-sm-12" [hidden]="editForm.get('id')!.value == null">
+                  <label class="form-label" for="field_id">ID</label>
+                  <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+                </div>
+
+                <div class="col-sm-12">
+                  <label for="field_cik" class="form-label">CIK*</label>
+                  <input type="text" class="form-control w-50" name="cik" id="field_cik" placeholder="" data_cy="cik" formControlName="cik" >
+                  <div *ngIf="editForm.get('cik')!.invalid && (editForm.get('cik')!.dirty || editForm.get('cik')!.touched)">
+						          <small class="form-text text-danger" *ngIf="editForm.get('cik')?.errors?.required"> This field is required. </small>
+						      </div>
+                </div>
+                
+                <div class="col-sm-12 ">
+                    <label for="field_ccc" class="form-label">CCC*</label>
+                    <input 
+                        type="text" 
+                        class="form-control w-50" 
+                        name="ccc" id="field_ccc" 
+                        placeholder="" data-cy="ccc" 
+                        formControlName="ccc"
+                    />
+                    <div *ngIf="editForm.get('ccc')!.invalid && (editForm.get('ccc')!.dirty || editForm.get('ccc')!.touched)">
+						            <small class="form-text text-danger" *ngIf="editForm.get('ccc')?.errors?.required"> This field is required. </small>
+						            <small class="form-text text-danger" *ngIf="editForm.get('ccc')?.errors?.pattern">
+						              This field should follow pattern for "Ccc".
+						            </small>
+          					</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="field_paymentAmount">Payment Amount</label>
+						        <input
+						            type="text"
+						            class="form-control w-50"
+						            name="paymentAmount"
+						            id="field_paymentAmount"
+						            data-cy="paymentAmount"
+						            formControlName="paymentAmount"
+						            placeholder=""
+						        />
+						        <div *ngIf="editForm.get('paymentAmount')!.invalid && (editForm.get('paymentAmount')!.dirty || editForm.get('paymentAmount')!.touched)">
+						            <small class="form-text text-danger" *ngIf="editForm.get('paymentAmount')?.errors?.required"> This field is required. </small>
+						        </div>
+						    </div>
+
+                <h5 class="my-3">Your contact information</h5>
+                
+                <div class="col-12">
+                    <label class="form-label" for="field_name">Name</label>
+						        <input type="text" class="form-control w-75" name="name" id="field_name" data-cy="name" placeholder="" formControlName="name" />
+						        <div *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+						          <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required"> This field is required. </small>
+						        </div>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label" for="field_email">Email</label>
+						        <input type="text" class="form-control w-75" name="email" id="field_email" data-cy="email" placeholder="" formControlName="email" />
+						        <div *ngIf="editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)">
+						          <small class="form-text text-danger" *ngIf="editForm.get('email')?.errors?.required"> This field is required. </small>
+						        </div>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label" for="field_phone">Phone</label>
+						        <input type="text" class="form-control w-75" name="phone" id="field_phone" placeholder="" data-cy="phone" formControlName="phone" />
+						        <div *ngIf="editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)">
+						          <small class="form-text text-danger" *ngIf="editForm.get('phone')?.errors?.required"> This field is required. </small>
+						        </div>
+                </div>
+                
+                <button  class="btn btn-dark text-white mx-2 col-2 " type="submit" (click)="clear()">clear</button>
+
+                <!-- <button class="btn btn-primary col-2 offset-1" type="submit">next</button> -->
+
+                <!-- <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary"  (click)="previousState()">
+					              <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+					            </button> -->
+
+					      <button
+					        type="submit"
+					        id="save-entity"
+					        data-cy="entityCreateSaveButton"
+					        [disabled]="editForm.invalid || isSaving"
+					        class="btn btn-primary col-2 offset-1"
+					        (click)="save()"
+					        [routerLink]="['/payment/view']"
+                >
+					          <fa-icon icon="save"></fa-icon>&nbsp;<span>next</span>
+					      </button>
+            </div>
+        </form>
+    </div>
+</div>
