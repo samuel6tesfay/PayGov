@@ -17,16 +17,19 @@ import { Router} from '@angular/router';
 export class PaymentUpdateComponent implements OnInit {
   isSaving = false;
   payment: any;
-  pay: any;
-  cik:any
+  pay: any ;
+  cik: any
+  value: any;
+  length: any;
+  maxlength: any=11;
 
   editForm = this.fb.group({
     id: [],
-    cik: [null, [Validators.required]],
-    ccc: [null, [Validators.required]],
+    cik: [null, [Validators.required,Validators.maxLength(11)]],
+    ccc: [null, [Validators.required,Validators.pattern('((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[$@#]).{8,30})')]],
     paymentAmount: [null, [Validators.required]],
     name: [null, [Validators.required]],
-    email: [null, [Validators.required]],
+    email: [null, [Validators.required,Validators.email]],
     phone: [null, [Validators.required]],
   });
 
@@ -36,7 +39,8 @@ export class PaymentUpdateComponent implements OnInit {
     this.pay = sessionStorage.getItem("payment");
     this.payment = JSON.parse(this.pay);
 
-    this.activatedRoute.data.subscribe(({ payment }) => {
+
+    this.activatedRoute.data.subscribe(( payment ) => {
       this.updateForm(payment);
     });
 
@@ -84,6 +88,31 @@ export class PaymentUpdateComponent implements OnInit {
 
   }
 
+  onKey(event: any): void { // without type info
+     this.value = event.target.value;
+     console.log(this.value);
+     console.log(Number(this.value));
+     console.log(String(Number(this.value)).length);
+
+     this.value = String(Number(this.value));
+    this.length = String(Number(this.value)).length;
+    if (this.length === 10) {
+      this.maxlength = 10;
+    } else {
+      this.maxlength = 11;
+    }
+    if (this.length <= 10) {
+       
+      for (let index = 0; index < 10-this.length; index++) {
+        this.value = "0".concat(this.value);  
+      }
+      
+      this.editForm.patchValue({
+        cik: this.value,
+      });
+     }
+    
+  }
  
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IPayment>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({

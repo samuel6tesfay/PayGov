@@ -47,11 +47,11 @@ export class PaymentDetailComponent implements OnInit {
       this.pay = sessionStorage.getItem("payment");
       this.payment = JSON.parse(this.pay);
        
-      this.length = this.payment.cik.length;
-      for (let index = 0; index < 10-this.length; index++) {
-        this.payment.cik = "0".concat(this.payment.cik);
+      // this.length = this.payment.cik.length;
+      // for (let index = 0; index < 10-this.length; index++) {
+      //   this.payment.cik = "0".concat(this.payment.cik);
 
-      }
+      // }
       this.loadAll();
   }
   previousState(): void {

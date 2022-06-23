@@ -30,7 +30,7 @@ public class Payment implements Serializable {
 
     @NotNull
     @Column(name = "payment_amount", nullable = false)
-    private String paymentAmount;
+    private Long paymentAmount;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -85,16 +85,16 @@ public class Payment implements Serializable {
         this.ccc = ccc;
     }
 
-    public String getPaymentAmount() {
+    public Long getPaymentAmount() {
         return this.paymentAmount;
     }
 
-    public Payment paymentAmount(String paymentAmount) {
+    public Payment paymentAmount(Long paymentAmount) {
         this.setPaymentAmount(paymentAmount);
         return this;
     }
 
-    public void setPaymentAmount(String paymentAmount) {
+    public void setPaymentAmount(Long paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 

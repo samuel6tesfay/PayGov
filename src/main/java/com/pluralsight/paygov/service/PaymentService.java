@@ -1,13 +1,32 @@
 package com.pluralsight.paygov.service;
 
+
+import com.ingenico.connect.gateway.sdk.java.ApiException;
+import com.ingenico.connect.gateway.sdk.java.Client;
+import com.ingenico.connect.gateway.sdk.java.CommunicatorConfiguration;
+import com.ingenico.connect.gateway.sdk.java.Factory;
+import com.ingenico.connect.gateway.sdk.java.defaultimpl.AuthorizationType;
+import com.ingenico.connect.gateway.sdk.java.domain.definitions.Address;
+import com.ingenico.connect.gateway.sdk.java.domain.definitions.AmountOfMoney;
+import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutRequest;
+import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutResponse;
+import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.definitions.HostedCheckoutSpecificInput;
+import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Customer;
+import com.ingenico.connect.gateway.sdk.java.domain.payment.definitions.Order;
 import com.pluralsight.paygov.domain.Payment;
 import com.pluralsight.paygov.repository.PaymentRepository;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Service Implementation for managing {@link Payment}.
@@ -114,4 +133,63 @@ public class PaymentService {
         log.debug("Request to delete Payment : {}", id);
         paymentRepository.deleteById(id);
     }
-}
+
+    public String getId(){
+        final String uri = "https://mockbin.org/bin/2e0bab38-cb2a-43ce-8967-2bde366f9b4f";
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.getForObject(uri, String.class);
+        return result;
+    }
+
+    public CreateHostedCheckoutResponse pay(Payment payment) throws URISyntaxException, IOException {
+
+
+    //    URI propertiesUri = getClass().getResource("i18n/messages.properties").toURI();
+
+       CommunicatorConfiguration communicatorConfiguration =  new CommunicatorConfiguration()
+            .withApiKeyId("b1434a5d30991fcd")
+            .withSecretApiKey("jEdhPGaut7zKmScHi0Qpmgxk0L2G0gj+54kPyaf0MkA=")
+            .withApiEndpoint(URI.create("https://eu.sandbox.api-ingenico.com"))
+            .withIntegrator("private")
+            .withAuthorizationType(AuthorizationType.V1HMAC);
+        Client client = (Client) Factory.createClient(communicatorConfiguration);
+
+
+    //    Client client = (Client) Factory.createClient(propertiesUri, "b1434a5d30991fcd",
+    //        "jEdhPGaut7zKmScHi0Qpmgxk0L2G0gj+54kPyaf0MkA=");
+
+        HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
+        hostedCheckoutSpecificInput.setLocale("en_GB");
+        hostedCheckoutSpecificInput.setReturnUrl("http://localhost:8080/payment");
+        hostedCheckoutSpecificInput.setVariant("100");
+        hostedCheckoutSpecificInput.setShowResultPage(false);
+
+        AmountOfMoney amountOfMoney = new AmountOfMoney();
+        amountOfMoney.setAmount(payment.getPaymentAmount());
+        amountOfMoney.setCurrencyCode("USD");
+
+        Address billingAddress = new Address();
+        billingAddress.setCountryCode("US");
+
+        Customer customer = new Customer();
+        customer.setBillingAddress(billingAddress);
+        customer.setMerchantCustomerId("1332");
+
+        Order order = new Order();
+        order.setAmountOfMoney(amountOfMoney);
+        order.setCustomer(customer);
+
+        CreateHostedCheckoutRequest body = new CreateHostedCheckoutRequest();
+        body.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
+        body.setOrder(order);
+
+        CreateHostedCheckoutResponse response = client.merchant("1332").hostedcheckouts().create(body);
+
+        log.info("Worldline partial redirect url : {}", response.getPartialRedirectUrl());
+        log.info("Worldline RETURN MAC", response.getRETURNMAC());
+        log.info("Worldline hostedCheckoutId", response.getHostedCheckoutId());
+
+        return response;
+    }
+
+    }

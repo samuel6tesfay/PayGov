@@ -11,7 +11,7 @@ const paymentRoute: Routes = [
   {
     path: '',
     component: PaymentComponent,
-    canActivate: [UserRouteAccessService],
+    // canActivate: [UserRouteAccessService],
   },
   {
     path: 'view',
@@ -19,7 +19,7 @@ const paymentRoute: Routes = [
     resolve: {
       payment: PaymentRoutingResolveService,
     },
-    canActivate: [UserRouteAccessService],
+    // canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
@@ -27,7 +27,7 @@ const paymentRoute: Routes = [
     resolve: {
       payment: PaymentRoutingResolveService,
     },
-    canActivate: [UserRouteAccessService],
+    // canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
@@ -35,7 +35,7 @@ const paymentRoute: Routes = [
     resolve: {
       payment: PaymentRoutingResolveService,
     },
-    canActivate: [UserRouteAccessService],
+    // canActivate: [UserRouteAccessService],
   },
 ];
 

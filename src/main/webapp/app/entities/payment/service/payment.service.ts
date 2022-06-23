@@ -6,6 +6,7 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { IPayment, getPaymentIdentifier } from '../payment.model';
+import { IHostedCheckout } from "../hostedCheckout.model";
 
 export type EntityResponseType = HttpResponse<IPayment>;
 export type EntityArrayResponseType = HttpResponse<IPayment[]>;
@@ -16,8 +17,8 @@ export class PaymentService {
 
   constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
-  create(payment: IPayment): Observable<EntityResponseType> {
-    return this.http.post<IPayment>(this.resourceUrl, payment, { observe: 'response' });
+  create(payment: IPayment): Observable<HttpResponse<IHostedCheckout>> {
+    return this.http.post<IHostedCheckout>(`${this.resourceUrl}/worldline`, payment, { observe: 'response' });
   }
 
   update(payment: IPayment): Observable<EntityResponseType> {
@@ -32,13 +33,18 @@ export class PaymentService {
     return this.http.get<IPayment>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  query(req?: any): Observable<HttpResponse<string>> {
+  query(req?: any): Observable<HttpResponse<EntityArrayResponseType>> {
     const options = createRequestOption(req);
-    return this.http.get<string>(this.resourceUrl, { params: options, observe: 'response' });
+    return this.http.get<EntityArrayResponseType>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  getTransactionId(req?:any): Observable<HttpResponse<string>> {
+     const options = createRequestOption(req);
+    return this.http.get<string>(`${this.resourceUrl}/mockbin`, { params: options, observe: 'response' });
   }
 
   addPaymentToCollectionIfMissing(paymentCollection: IPayment[], ...paymentsToCheck: (IPayment | null | undefined)[]): IPayment[] {

@@ -1,23 +1,33 @@
 package com.pluralsight.paygov.web.rest;
 
+import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutResponse;
+import com.ingenico.connect.gateway.sdk.java.domain.payment.CreatePaymentResponse;
 import com.pluralsight.paygov.domain.Payment;
 import com.pluralsight.paygov.repository.PaymentRepository;
 import com.pluralsight.paygov.service.PaymentService;
 import com.pluralsight.paygov.web.rest.errors.BadRequestAlertException;
+
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
+
+import org.springframework.web.client.RestTemplate;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -39,10 +49,13 @@ public class PaymentResource {
 
     private final PaymentRepository paymentRepository;
 
+
     public PaymentResource(PaymentService paymentService, PaymentRepository paymentRepository) {
         this.paymentService = paymentService;
         this.paymentRepository = paymentRepository;
     }
+
+
 
     /**
      * {@code POST  /payments} : Create a new payment.
@@ -64,6 +77,11 @@ public class PaymentResource {
             .body(result);
     }
 
+    @PostMapping("/payments/worldline")
+    public CreateHostedCheckoutResponse payPaymentThroughWorldLine(@Valid @RequestBody Payment payment) throws URISyntaxException, IOException {
+        return paymentService.pay(payment);
+
+    }
 
     /**
      * {@code PUT  /payments/:id} : Updates an existing payment.
@@ -139,27 +157,20 @@ public class PaymentResource {
      * {@code GET  /payments} : get all the payments.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of payments in body.
+     * @throws URISyntaxException
+     * @throws IOException
      */
-    // @GetMapping("/payments")
-    // public List<Payment> getAllPayments() {
-    //     log.debug("REST request to get all Payments");
-    //     return paymentService.findAll();
-    // }
 
-    @GetMapping("/payments")
-    public String getAllPayments() {
-        // log.debug("REST request to get all Payments");
-        // return paymentService.findAll();
-       
+     @GetMapping("/payments")
+     public List<Payment> getAllPayments() {
+         return paymentService.findAll();
+     }
 
-        final String uri = "https://mockbin.org/bin/2e0bab38-cb2a-43ce-8967-2bde366f9b4f";
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-        log.debug("result", result);
-        return result;
+    @GetMapping("/payments/mockbin")
+    public String getTransactionId()  {
+         return paymentService.getId();
     }
 
-   
 
     /**
      * {@code GET  /payments/:id} : get the "id" payment.

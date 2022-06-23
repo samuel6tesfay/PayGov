@@ -20,7 +20,7 @@
             <column name="ccc" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="payment_amount" type="bigint">
+            <column name="payment_amount" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="name" type="varchar(255)">

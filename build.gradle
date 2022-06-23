@@ -198,6 +198,7 @@ repositories {
     // Local maven repository is required for libraries built locally with maven like development jhipster-bom.
     // mavenLocal()
     mavenCentral()
+    
     //jhipster-needle-gradle-repositories - JHipster will add additional repositories
 }
 
@@ -210,6 +211,8 @@ dependencies {
     // Use ", version: jhipsterDependenciesVersion, changing: true" if you want
     // to use a SNAPSHOT release instead of a stable release
     implementation group: "tech.jhipster", name: "jhipster-framework"
+    implementation group: 'com.ingenico.connect.gateway', name: 'connect-sdk-java', version: '6.31.0'
+
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.dropwizard.metrics:metrics-core"
     implementation "io.micrometer:micrometer-registry-prometheus"
