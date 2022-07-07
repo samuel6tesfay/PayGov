@@ -2,34 +2,48 @@ package com.pluralsight.paygov.web.rest;
 
 import com.ingenico.connect.gateway.sdk.java.domain.hostedcheckout.CreateHostedCheckoutResponse;
 import com.ingenico.connect.gateway.sdk.java.domain.payment.CreatePaymentResponse;
+import com.paypal.exception.ClientActionRequiredException;
+import com.paypal.exception.HttpErrorException;
+import com.paypal.exception.InvalidCredentialException;
+import com.paypal.exception.InvalidResponseDataException;
+import com.paypal.exception.MissingCredentialException;
+import com.paypal.exception.SSLConfigurationException;
+import com.paypal.sdk.exceptions.PayPalException;
 import com.pluralsight.paygov.domain.Payment;
 import com.pluralsight.paygov.repository.PaymentRepository;
 import com.pluralsight.paygov.service.PaymentService;
 import com.pluralsight.paygov.web.rest.errors.BadRequestAlertException;
-
+import com.pluralsight.util.Configuration;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.xml.sax.SAXException;
 
-import org.springframework.web.client.RestTemplate;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import urn.ebay.api.PayPalAPI.*;
+import urn.ebay.apis.CoreComponentTypes.BasicAmountType;
+import urn.ebay.apis.eBLBaseComponents.*;
+
 
 /**
  * REST controller for managing {@link com.pluralsight.paygov.domain.Payment}.
@@ -39,6 +53,8 @@ import tech.jhipster.web.util.ResponseUtil;
 public class PaymentResource {
 
     private final Logger log = LoggerFactory.getLogger(PaymentResource.class);
+
+    SetExpressCheckoutResponseType setExpressCheckoutResponse;
 
     private static final String ENTITY_NAME = "payment";
 
@@ -71,6 +87,7 @@ public class PaymentResource {
             throw new BadRequestAlertException("A new payment cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Payment result = paymentService.save(payment);
+        paymentService.sendMail(payment.getEmail(), payment.getApprovalStatus(), payment.getName());
         return ResponseEntity
             .created(new URI("/api/payments/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -79,6 +96,8 @@ public class PaymentResource {
 
     @PostMapping("/payments/worldline")
     public CreateHostedCheckoutResponse payPaymentThroughWorldLine(@Valid @RequestBody Payment payment) throws URISyntaxException, IOException {
+        
+        paymentService.save(payment);
         return paymentService.pay(payment);
 
     }
@@ -196,8 +215,110 @@ public class PaymentResource {
         log.debug("REST request to delete Payment : {}", id);
         paymentService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+                .build();
     }
+    @Value("${spring.application.paypalUrl}")
+    String paypalUrl;
+
+    @Value("${spring.application.returnUrl}")
+    String returnUrl;
+
+    @Value("${spring.application.cancelUrl}")
+    String cancelUrl;
+
+    @PostMapping("/payments/paypal")
+    public String setExpressCheckout(@Valid @RequestBody Payment payment)
+        throws PayPalException, ClientActionRequiredException, SSLConfigurationException, MissingCredentialException, InvalidResponseDataException, InvalidCredentialException, IOException, HttpErrorException, InterruptedException, SAXException, ParserConfigurationException {
+        Long payerId = 5L;
+        // String paymentAmount = payAmount.getPaymentAmount().toString();
+
+        String returnURL = this.returnUrl;
+        String cancelURL = this.cancelUrl;
+         
+
+        PaymentActionCodeType paymentAction = PaymentActionCodeType.SALE;
+        CurrencyCodeType currencyCode = CurrencyCodeType.EUR;
+
+        Map<String, String> configurationMap = Configuration.getAcctAndConfig();
+        PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(configurationMap);
+
+        SetExpressCheckoutRequestType setExpressCheckoutReq = new SetExpressCheckoutRequestType();
+        setExpressCheckoutReq.setVersion("63.0");
+
+        SetExpressCheckoutRequestDetailsType details = new SetExpressCheckoutRequestDetailsType();
+
+        PaymentDetailsType paymentDetails = new PaymentDetailsType();
+        paymentDetails.setOrderDescription("PayGov integration with paypal");
+        paymentDetails.setInvoiceID("INVOICE-" + Math.random());
+        BasicAmountType orderTotal = new BasicAmountType();
+        orderTotal.setValue(String.valueOf(payment.getPaymentAmount()));
+        orderTotal.setCurrencyID(currencyCode);
+        paymentDetails.setOrderTotal(orderTotal);
+        paymentDetails.setPaymentAction(paymentAction);
+        details.setPaymentDetails(Arrays.asList(new PaymentDetailsType[] { paymentDetails }));
+        details.setReturnURL(returnURL);
+        details.setCancelURL(cancelURL);
+        details.setCustom(payerId.toString());
+
+        setExpressCheckoutReq.setSetExpressCheckoutRequestDetails(details);
+
+        SetExpressCheckoutReq expressCheckoutReq = new SetExpressCheckoutReq();
+
+        expressCheckoutReq.setSetExpressCheckoutRequest(setExpressCheckoutReq);
+
+        setExpressCheckoutResponse = service.setExpressCheckout(expressCheckoutReq);
+
+        getExpressCheckoutDetails(setExpressCheckoutResponse.getToken());
+
+        String redirectURL = ( this.paypalUrl + setExpressCheckoutResponse.getToken());
+
+        log.info("Paypal returned url : {}", redirectURL);
+
+        return JSONObject.quote(redirectURL);
+    }
+   
+
+     public GetExpressCheckoutDetailsResponseDetailsType getExpressCheckoutDetails(String token)
+        throws PayPalException, SAXException, ParserConfigurationException, SSLConfigurationException, HttpErrorException, InvalidResponseDataException, ClientActionRequiredException, MissingCredentialException, IOException, InterruptedException, InvalidCredentialException {
+        Map<String, String> configurationMap = Configuration.getAcctAndConfig();
+        PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(configurationMap);
+
+        GetExpressCheckoutDetailsReq getExpressCheckoutDetailsReq = new GetExpressCheckoutDetailsReq();
+        GetExpressCheckoutDetailsRequestType getExpressCheckoutDetailsRequestType = new GetExpressCheckoutDetailsRequestType();
+        getExpressCheckoutDetailsRequestType.setVersion("63.0");
+
+        getExpressCheckoutDetailsReq.setGetExpressCheckoutDetailsRequest(new GetExpressCheckoutDetailsRequestType(token));
+        GetExpressCheckoutDetailsResponseType getExpressCheckoutDetailsResponseType = service.getExpressCheckoutDetails(
+            getExpressCheckoutDetailsReq
+        );
+
+        log.info("GetExpressCheckoutDetailsResponseDetailsType");
+        log.info(
+            "PayerID         : {}",
+            getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getPayerInfo().getPayerID()
+        );
+        log.info("Ack             : {}", getExpressCheckoutDetailsResponseType.getAck());
+        log.info("Token           : {}", getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getToken());
+        log.info(
+            "Payment Details : {}",
+            getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getPaymentDetails()
+        );
+        log.info(
+            "Payment Info    : {}",
+            getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getPaymentInfo()
+        );
+        log.info(
+            "Billing Address : {}",
+            getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getBillingAddress()
+        );
+        log.info(
+            "Checkout Status : {}",
+            getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails().getCheckoutStatus()
+        );
+
+        return getExpressCheckoutDetailsResponseType.getGetExpressCheckoutDetailsResponseDetails();
+    }
+
 }

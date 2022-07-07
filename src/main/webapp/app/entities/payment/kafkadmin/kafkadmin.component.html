@@ -1,0 +1,48 @@
+<h1 class="admin"><strong>Admin Payment Approval</strong></h1>
+
+<div class="card my-5">
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <caption>
+        Admin payment approval
+      </caption>
+      <thead class="thead black">
+        <tr>
+          <th scope="col">Cik</th>
+          <th scope="col">Ccc</th>
+          <th scope="col">Payment Amount</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pay of pay">
+          <td>{{ pay.cik }}</td>
+          <td>{{ pay.ccc }}</td>
+          <td>{{ pay.paymentAmount }}</td>
+          <td>{{ pay.name }}</td>
+          <td>{{ pay.email }}</td>
+          <td>{{ pay.phone }}</td>
+          <td class="status" [style.color]="pay.approvalStatus === 'Approve' ? 'green' : 'red'">
+            <strong>{{ pay.approvalStatus }}</strong>
+          </td>
+
+          <td>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-primary btn-sm" (click)="save(pay)">
+              &nbsp;&nbsp;&nbsp;&nbsp; <fa-icon icon="save"></fa-icon> <span>Approve</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </button>
+          </td>
+
+          <td>
+            <button type="submit" class="btn btn-danger btn-sm" (click)="decline(pay)">
+              &nbsp;&nbsp;&nbsp;&nbsp; <fa-icon icon="times"></fa-icon> <span>Decline</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

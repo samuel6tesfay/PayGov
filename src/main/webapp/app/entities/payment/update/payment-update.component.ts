@@ -29,7 +29,7 @@ export class PaymentUpdateComponent implements OnInit {
     ccc: [null, [Validators.required,Validators.pattern('((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[$@#]).{8,30})')]],
     paymentAmount: [null, [Validators.required]],
     name: [null, [Validators.required]],
-    email: [null, [Validators.required,Validators.email]],
+    email: [null, [Validators.required,Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
     phone: [null, [Validators.required]],
   });
 
@@ -40,7 +40,7 @@ export class PaymentUpdateComponent implements OnInit {
     this.payment = JSON.parse(this.pay);
 
 
-    this.activatedRoute.data.subscribe(( payment ) => {
+    this.activatedRoute.data.subscribe(( payment:any ) => {
       this.updateForm(payment);
     });
 
@@ -90,9 +90,6 @@ export class PaymentUpdateComponent implements OnInit {
 
   onKey(event: any): void { // without type info
      this.value = event.target.value;
-     console.log(this.value);
-     console.log(Number(this.value));
-     console.log(String(Number(this.value)).length);
 
      this.value = String(Number(this.value));
     this.length = String(Number(this.value)).length;

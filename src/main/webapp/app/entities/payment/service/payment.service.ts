@@ -14,11 +14,25 @@ export type EntityArrayResponseType = HttpResponse<IPayment[]>;
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/payments');
+  protected kafka = this.applicationConfigService.getEndpointFor('api/kafka');
+  protected kafkadmin = this.applicationConfigService.getEndpointFor('api/kafkadmin');
 
   constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
-  create(payment: IPayment): Observable<HttpResponse<IHostedCheckout>> {
-    return this.http.post<IHostedCheckout>(`${this.resourceUrl}/worldline`, payment, { observe: 'response' });
+  create(payment: IPayment): Observable<HttpResponse<IPayment>> {
+    return this.http.post<IPayment>(`${this.resourceUrl}`, payment, { observe: 'response' });
+  }
+
+  kafkaQueue(payment: IPayment): Observable<HttpResponse<any>> {
+    return this.http.post<IPayment>(`${this.kafka}`, payment, { observe: 'response' });
+  }
+
+  kafkaAdmin(): Observable<IPayment[]> {
+    return this.http.get<IPayment[]>(`${this.kafkadmin}`);
+  }
+
+  getPaypalToken(payment: IPayment): Observable<HttpResponse<any>> {
+    return this.http.post<any>(`${this.resourceUrl}/paypal`, payment , {  observe: 'response' });
   }
 
   update(payment: IPayment): Observable<EntityResponseType> {
@@ -46,6 +60,7 @@ export class PaymentService {
      const options = createRequestOption(req);
     return this.http.get<string>(`${this.resourceUrl}/mockbin`, { params: options, observe: 'response' });
   }
+
 
   addPaymentToCollectionIfMissing(paymentCollection: IPayment[], ...paymentsToCheck: (IPayment | null | undefined)[]): IPayment[] {
     const payments: IPayment[] = paymentsToCheck.filter(isPresent);

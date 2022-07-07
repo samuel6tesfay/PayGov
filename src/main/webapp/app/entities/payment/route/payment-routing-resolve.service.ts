@@ -15,7 +15,7 @@ export class PaymentRoutingResolveService implements Resolve<IPayment> {
     const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        mergeMap((payment: HttpResponse<Payment>) => {
+        mergeMap((payment: HttpResponse<IPayment>) => {
           if (payment.body) {
             return of(payment.body);
           } else {

@@ -46,6 +46,7 @@ export class PaymentDetailComponent implements OnInit {
   ngOnInit(): void {
       this.pay = sessionStorage.getItem("payment");
       this.payment = JSON.parse(this.pay);
+      console.log("pay", this.payment);
        
       // this.length = this.payment.cik.length;
       // for (let index = 0; index < 10-this.length; index++) {
@@ -58,7 +59,8 @@ export class PaymentDetailComponent implements OnInit {
     window.history.back();
   }
 
-   save(): void {
+  save(): void {
+     this.subscribeToSaveResponse(this.paymentService.kafkaQueue(this.payment));
      this.isSaving = true;
      const modalRef = this.modalService.open(PaymentCreateDialogComponent, { size: 'lg', backdrop: 'static' });
      modalRef.componentInstance.payment = this.payment;
@@ -66,7 +68,8 @@ export class PaymentDetailComponent implements OnInit {
       if (reason === 'save') {
         this.loadAll();
       }
-    });
+     });
+
    }
   
    protected subscribeToSaveResponse(result: Observable<HttpResponse<IPayment>>): void {
@@ -77,7 +80,7 @@ export class PaymentDetailComponent implements OnInit {
   }
 
   protected onSaveSuccess(): void {
-    this.previousState();
+    // this.previousState();
   }
 
   protected onSaveError(): void {

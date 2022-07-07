@@ -22,6 +22,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
+import javax.mail.*;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.InternetAddress;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -141,6 +147,42 @@ public class PaymentService {
         return result;
     }
 
+    public void sendMail(String recipientGmail, String paymentStatus, String name) {
+        String to = "samuel6tesfay@gmail.com";
+        String from = "samuel66tesfaay@gmail.com";
+        String host = "smtp.gmail.com";
+
+        Properties properties = System.getProperties();
+
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.port", "465");
+        properties.put("mail.smtp.ssl.enable", "true");
+        properties.put("mail.smtp.auth", "true");
+
+        Session session = Session.getInstance(
+            properties,
+            new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("samuel66tesfay@gmail.com", "1234S@m@@l66T@sf@y5678");
+                }
+            }
+        );
+
+        session.setDebug(true);
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setSubject("PayGov payment status notification");
+            message.setText("Hi Mr/Mrs " + "'" + name + "'" + " your previous payment appeal is " + "'" + paymentStatus + "'");
+
+            Transport.send(message);
+        } catch (MessagingException mex) {
+            mex.printStackTrace();
+        }
+    }
+
     public CreateHostedCheckoutResponse pay(Payment payment) throws URISyntaxException, IOException {
 
 
@@ -191,5 +233,7 @@ public class PaymentService {
 
         return response;
     }
+
+
 
     }

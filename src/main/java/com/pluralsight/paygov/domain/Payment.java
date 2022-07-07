@@ -44,6 +44,10 @@ public class Payment implements Serializable {
     @Column(name = "phone", nullable = false)
     private String phone;
 
+    @NotNull
+    @Column(name = "approval_status",nullable = false)
+    private String approvalStatus;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -135,6 +139,19 @@ public class Payment implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
+    public Payment approvalStatus(String approvalStatus) {
+        this.setPhone(approvalStatus);
+        return this;
+    }
+
+    public String getApprovalStatus() {
+        return this.approvalStatus;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

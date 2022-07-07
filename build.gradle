@@ -99,6 +99,12 @@ test {
     reports.html.enabled = false
 }
 
+compileJava.dependsOn.genjaxb
+bootJar {
+	baseName = 'gs-consuming-web-service'
+	version =  '0.0.1'
+}
+
 modernizer {
     failOnViolations = true
     includeTestClasses = true
@@ -132,6 +138,43 @@ task testReport(type: TestReport) {
 task integrationTestReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/tests")
     reportOn integrationTest
+}
+
+task genJaxb {
+	ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
+	ext.classesDir = "${buildDir}/classes/jaxb"
+	ext.schema = "src/main/resources/paypal.wsdl"
+
+	outputs.dir classesDir
+
+	doLast() {
+		project.ant {
+			taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+					classpath: configurations.jaxb.asPath
+			mkdir(dir: sourcesDir)  
+			mkdir(dir: classesDir)
+
+				xjc(destdir: sourcesDir, schema: schema,
+						package: "com.pluralsight.paygov") {
+						arg(value: "-wsdl")
+					produces(dir: sourcesDir, includes: "**/*.java")
+				}
+
+				javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
+						debugLevel: "lines,vars,source",
+						classpath: configurations.jaxb.asPath) {
+					src(path: sourcesDir)
+					include(name: "**/*.java")
+					include(name: "*.java")
+					}
+
+				copy(todir: classesDir) {
+						fileset(dir: sourcesDir, erroronmissingdir: false) {
+						exclude(name: "**/*.java")
+				}
+			}
+		}
+	}
 }
 
 if (!project.hasProperty("runList")) {
@@ -183,6 +226,7 @@ nohttp {
 }
 
 configurations {
+    jaxb
     providedRuntime
     implementation.exclude module: "spring-boot-starter-tomcat"
     all {
@@ -210,8 +254,26 @@ dependencies {
 
     // Use ", version: jhipsterDependenciesVersion, changing: true" if you want
     // to use a SNAPSHOT release instead of a stable release
+
+    implementation ('org.springframework.boot:spring-boot-starter-web-services'){
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+	}
+    implementation 'org.springframework.ws:spring-ws-core'
+    implementation 'org.glassfish.jaxb:jaxb-runtime'
+    implementation(files(genJaxb.classesDir).builtBy(genJaxb))
+    jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
+
+
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.apache.kafka:kafka-clients:3.1.0'
+    implementation 'org.apache.kafka:kafka-streams:3.1.0'
+
+
     implementation group: "tech.jhipster", name: "jhipster-framework"
     implementation group: 'com.ingenico.connect.gateway', name: 'connect-sdk-java', version: '6.31.0'
+    // implementation "com.paypal.sdk:merchantsdk:2.15.122"
+    implementation group: 'com.paypal.sdk',name:"merchantsdk",version:'2.15.122'
+    implementation 'org.json:json:20211205'
 
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.dropwizard.metrics:metrics-core"
@@ -325,6 +387,8 @@ if (project.hasProperty("nodeInstall")) {
     }
     tasks.named("npmSetup").configure { finalizedBy fixedNpm }
 }
+
+
 
 test.dependsOn webapp_test
 compileJava.dependsOn processResources

@@ -116,6 +116,11 @@ management:
 spring:
   application:
     name: PayGov
+    paypalUrl: https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=
+    returnUrl: http://localhost:8080/payment
+    cancelUrl: http://localhost:8080/payment
+    bootstrap-servers: localhost:9092
+    consumer-group: user
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by gradle when building the JAR file

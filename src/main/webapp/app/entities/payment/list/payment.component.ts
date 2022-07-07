@@ -32,6 +32,7 @@ export class PaymentComponent implements OnInit {
         this.isLoading = false;
         this.payment = res.body ?? "";
         this.pay = JSON.parse(JSON.stringify(this.payment));
+        // sessionStorage.removeItem("payment");
       },
       error: () => {
         this.isLoading = false;

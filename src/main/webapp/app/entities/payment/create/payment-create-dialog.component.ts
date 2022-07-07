@@ -23,12 +23,14 @@ export class PaymentCreateDialogComponent {
   display: any ;
   interval: any;
   hostedCheckout: any;
- 
+
+  token: any;
+  ppUrl: any;
+  ppToken: any;
 
   constructor(protected paymentService: PaymentService, protected activeModal: NgbActiveModal,private router:Router) {
     this.time = 8
   }
-
   
   ngOnInit(): void {
     this.startTimer();
@@ -40,22 +42,20 @@ export class PaymentCreateDialogComponent {
       if (this.time !== 0) {
         this.time--;
       } else {
-          this.confirmCreate()
-          // this.router.navigate(['/payment']);
-          this.activeModal.dismiss();
-          clearInterval(this.interval);
+        this.confirmCreate()
+        clearInterval(this.interval);
+
       } 
       return this.time;
     }, 1000);
   }
 
-
   cancel(): void {
     this.activeModal.dismiss();
+    clearInterval(this.interval);
   }
 
   confirmCreate(): void {
-     clearInterval(this.interval);
      this.pay = sessionStorage.getItem("payment");
      this.payment = JSON.parse(this.pay);
      this.length = this.payment.cik.length;
@@ -63,10 +63,13 @@ export class PaymentCreateDialogComponent {
      for (let index = 0; index < 10-this.length; index++) {
        this.payment.cik = "0".concat(this.payment.cik);
      }
-    
-      this.subscribeToSaveResponse(this.paymentService.create(this.payment));
-      // this.pay = sessionStorage.removeItem("payment");
+        
+    this.activeModal.dismiss();
 
+    this.subscribeToSaveResponse(this.paymentService.getPaypalToken(this.payment));
+
+    // this.subscribeToSaveResponse(this.paymentService.kafkaQueue(this.payment));
+    // this.pay = sessionStorage.removeItem("payment");
   }
    
   previousState(): void {
@@ -74,11 +77,16 @@ export class PaymentCreateDialogComponent {
   }
    protected subscribeToSaveResponse(result: Observable<HttpResponse<IHostedCheckout>>): void {
      result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
-       next: (res: HttpResponse<IHostedCheckout>) =>
+       next: (res: any) =>
        {
-         this.onSaveSuccess()
-         this.hostedCheckout = res.body;
-         window.location.href = "https://payment.".concat(this.hostedCheckout.partialRedirectUrl);
+        //  this.onSaveSuccess()
+        //  this.hostedCheckout = res.body;
+        //  window.location.href = "https://payment.".concat(this.hostedCheckout.partialRedirectUrl);
+         
+        this.token = JSON.stringify(res);
+        this.ppUrl = JSON.parse(this.token);
+        window.location.href = this.ppUrl.body;
+        
          
       },  
       

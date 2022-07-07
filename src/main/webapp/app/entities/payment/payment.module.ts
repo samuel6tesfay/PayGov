@@ -5,12 +5,13 @@ import { PaymentDetailComponent } from './detail/payment-detail.component';
 import { PaymentUpdateComponent } from './update/payment-update.component';
 import { PaymentDeleteDialogComponent } from './delete/payment-delete-dialog.component';
 import { PaymentCreateDialogComponent } from './create/payment-create-dialog.component';
+import { KafkadminComponent } from './kafkadmin/kafkadmin.component'
 
 import { PaymentRoutingModule } from './route/payment-routing.module';
 
 @NgModule({
   imports: [SharedModule, PaymentRoutingModule],
-  declarations: [PaymentComponent, PaymentDetailComponent, PaymentUpdateComponent, PaymentDeleteDialogComponent,PaymentCreateDialogComponent],
+  declarations: [PaymentComponent, PaymentDetailComponent, PaymentUpdateComponent, PaymentDeleteDialogComponent,PaymentCreateDialogComponent,KafkadminComponent],
   entryComponents: [PaymentDeleteDialogComponent],
 })
 export class PaymentModule {}

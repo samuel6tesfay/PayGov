@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+// import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { PaymentComponent } from '../list/payment.component';
 import { PaymentDetailComponent } from '../detail/payment-detail.component';
 import { PaymentUpdateComponent } from '../update/payment-update.component';
+import { KafkadminComponent } from '../kafkadmin/kafkadmin.component'
 import { PaymentRoutingResolveService } from './payment-routing-resolve.service';
 
 const paymentRoute: Routes = [
@@ -24,6 +25,14 @@ const paymentRoute: Routes = [
   {
     path: 'new',
     component: PaymentUpdateComponent,
+    resolve: {
+      payment: PaymentRoutingResolveService,
+    },
+    // canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'adminDashboard',
+    component: KafkadminComponent,
     resolve: {
       payment: PaymentRoutingResolveService,
     },
