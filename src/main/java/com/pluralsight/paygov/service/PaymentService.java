@@ -164,7 +164,7 @@ public class PaymentService {
             new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("samuel66tesfay@gmail.com", "1234S@m@@l66T@sf@y5678");
+                    return new PasswordAuthentication("samuel66tesfay@gmail.com", "password");
                 }
             }
         );
@@ -189,16 +189,16 @@ public class PaymentService {
     //    URI propertiesUri = getClass().getResource("i18n/messages.properties").toURI();
 
        CommunicatorConfiguration communicatorConfiguration =  new CommunicatorConfiguration()
-            .withApiKeyId("b1434a5d30991fcd")
-            .withSecretApiKey("jEdhPGaut7zKmScHi0Qpmgxk0L2G0gj+54kPyaf0MkA=")
+            .withApiKeyId("apiKeyId")
+            .withSecretApiKey("secreteApiKey")
             .withApiEndpoint(URI.create("https://eu.sandbox.api-ingenico.com"))
             .withIntegrator("private")
             .withAuthorizationType(AuthorizationType.V1HMAC);
         Client client = (Client) Factory.createClient(communicatorConfiguration);
 
 
-    //    Client client = (Client) Factory.createClient(propertiesUri, "b1434a5d30991fcd",
-    //        "jEdhPGaut7zKmScHi0Qpmgxk0L2G0gj+54kPyaf0MkA=");
+    //    Client client = (Client) Factory.createClient(propertiesUri, "apikey",
+    //        "apisecret");
 
         HostedCheckoutSpecificInput hostedCheckoutSpecificInput = new HostedCheckoutSpecificInput();
         hostedCheckoutSpecificInput.setLocale("en_GB");
@@ -225,7 +225,7 @@ public class PaymentService {
         body.setHostedCheckoutSpecificInput(hostedCheckoutSpecificInput);
         body.setOrder(order);
 
-        CreateHostedCheckoutResponse response = client.merchant("1332").hostedcheckouts().create(body);
+        CreateHostedCheckoutResponse response = client.merchant("merchantid").hostedcheckouts().create(body);
 
         log.info("Worldline partial redirect url : {}", response.getPartialRedirectUrl());
         log.info("Worldline RETURN MAC", response.getRETURNMAC());
